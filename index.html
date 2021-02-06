@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang=”en”>
+
+<head>
+    <meta charset=”UTF-8″ />
+    <link rel="icon" href="assets/favicon.ico" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Location </title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Font Icons-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+    <!-- Leaflet -->
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-warning">
+        <div class="container-fluid">
+            <div id="centrar">
+                <img src="assets/lugar.png" alt="" class="d-inline-block align-midle">
+                <a class="navbar-brand text-white" href="#">
+                    IP GEO LOCATION
+                </a>
+            </div>
+        </div>
+    </nav>
+    <section id="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <button class="btn btn-success" id="getLocalizacion"> <img src="assets/objetivo.png">
+                        Obtener Detalles</button>
+                </div>
+            </div>
+            <br>
+            <div class="row" id="contenidoLocalizacion">
+            </div>
+        </div>
+    </section>
+    <div><span class="badge bg-success text-white">Usando Navigator Geolocation </span></div>
+    <div id="mapid"></div> <!--Aca irá el mapita -->
+    <!--Footer -->
+    <footer class="bg-warning">
+        <div class="container-fluid padding">
+            <div class="container">
+                <div class="col-12  text-center social">
+                    <a class="" href="https://github.com/PedroManuelJM" target="_blank"><i
+                            class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="container text-center">
+                <p> Mi página Web
+                    <a href="https://pedrojuradomoreno-43dfd.web.app/" target="_blank" class="text-white"
+                        style="text-decoration:none">PedroManuelJM <img src="assets/link-website.png"
+                            style="width: 32px;"></a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+<script>
+    var output = document.getElementById('mapid');
+    // Verificar si soporta geolocalizacion
+    if (navigator.geolocation) {
+        output.innerHTML = "<p>Tu navegador soporta Geolocalizacion</p>";
+    } else {
+        output.innerHTML = "<p>Tu navegador no soporta Geolocalizacion</p>";
+    }
+
+    //Obtenemos latitud y longitud
+    function localizacion(posicion) {
+
+        var latitude = posicion.coords.latitude;
+        var longitude = posicion.coords.longitude;
+        //output.innerHTML ="<p>LATITUD: "+latitude+"<br>Longitud:"+longitude+"</p>"; --> Para ver los datos 
+
+        var mymap = L.map('mapid').setView([latitude, longitude], 13); // Pasando los parámetros de latitud y longitud  
+        var marker = L.marker([latitude, longitude]).addTo(mymap); // Mostrando la ubicación en el mapa
+        var popup = L.popup() // Usando la ventana popup
+            // en esta parte para que cargue ya iniciado 
+            .setLatLng([latitude, longitude])
+            .setContent('Tu ubicación <img src="assets/casa.png"> <br> <span class="badge bg-info text-white"> Latitude : ' + latitude + '</span><br><span class="badge bg-dark text-white"> Longitude : ' + longitude + '</span>')
+            .openOn(mymap);
+
+        // Al momento de cerrar el popup volver a mostrar 
+        function onMapClick(e) {
+            popup
+                .setLatLng([latitude, longitude])
+                .setContent('Tu ubicación <img src="assets/casa.png"> <br> <span class="badge bg-info text-white"> Latitude : ' + latitude + '</span><br><span class="badge bg-dark text-white"> Longitude : ' + longitude + '</span>')
+                .openOn(mymap);
+        }
+
+        // Usando mapa con Leaflet 
+        mymap.on('click', onMapClick);
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoiYW1wYXNncmV5IiwiYSI6ImNra3R5bDJhdTBsdHIyb215cXNycHFjazYifQ.8dEte6HlU5fk5nZdfEjSEA' //este token debes crearlo entrando a la web de mapbox.com
+        }).addTo(mymap);
+
+    }
+    function error() {
+        output.innerHTML = "<p>No se pudo obtener tu ubicación</p>";
+
+    }
+    navigator.geolocation.getCurrentPosition(localizacion, error); // Si surge un error 
+
+</script>
+
+<script src="js/script.js"></script> <!--Llamando al script que tiene los datos recibidos de la API -->
+
+</html>
